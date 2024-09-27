@@ -6,7 +6,7 @@ const DatePicker = ({
     language = 'en', // 'en', 'hi
     size = 'medium' // 'compact', 'medium', or 'cozy'
 }) => {
-    const [selectedDate, setSelectedDate] = useState(initialDate || new Date());
+    const [selectedDate, setSelectedDate] = useState(new Date());
     const [currentYear, setCurrentYear] = useState(selectedDate.getFullYear());
     const [currentMonth, setCurrentMonth] = useState(selectedDate.getMonth());
     const [visibleDates, setVisibleDates] = useState([]);
@@ -18,8 +18,8 @@ const DatePicker = ({
         hi: ['जन', 'फर', 'मार्च', 'अप्रै', 'मई', 'जून', 'जुल', 'अग', 'सित', 'अक्टू', 'नव', 'दिस']
     };
     const weekDays = {
-        en: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
-        hi: ['र', 'सो', 'मं', 'बु', 'गु', 'शु', 'श']
+        en: ['Sun', 'M', 'T', 'W', 'T', 'F', 'S'],
+        hi: ['रवि', 'सो', 'मं', 'बु', 'गु', 'शु', 'श']
     };
     const weekDaysFull = {
         en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
@@ -35,9 +35,9 @@ const DatePicker = ({
         },
         hi: {
             today: 'आज',
-            selected: 'चयनित तिथि:',
+            selected: 'चयनित दिनांक:',
             year: 'वर्ष',
-            month: 'महीना'
+            month: 'माह'
         }
     };
 
@@ -62,11 +62,14 @@ const DatePicker = ({
     };
 
     useEffect(() => {
+        if (initialDate === selectedDate) {
+            return;
+        }
         setVisibleDates(generateDates(selectedDate));
         if (onChange) {
             onChange(selectedDate);
         }
-    }, [selectedDate, onChange]);
+    }, [initialDate, selectedDate, onChange]);
 
     const handleDateClick = (date) => {
         setSelectedDate(date);
@@ -75,6 +78,9 @@ const DatePicker = ({
     };
 
     const handleYearClick = (year) => {
+        if (currentYear === year) {
+            return;
+        }
         const newDate = new Date(selectedDate);
         newDate.setFullYear(year);
         setSelectedDate(newDate);
@@ -134,8 +140,10 @@ const DatePicker = ({
     };
 
     const handleKeyDown = (e) => {
+        console.log('if (!focusedDate) return;');
         if (!focusedDate) return;
 
+        console.log('const currentIndex = visibleDates.findIndex(date => date.toDateString() === focusedDate.toDateString());');
         const currentIndex = visibleDates.findIndex(date => date.toDateString() === focusedDate.toDateString());
         let newIndex;
 
@@ -197,7 +205,7 @@ const DatePicker = ({
                 <div className="w-20 bg-gray-100 flex flex-col items-center justify-center" role="group" aria-label={labels[language].month}>
                     {getVisibleMonths().map(({ month, year }, index) => (
                         <button
-                            key={year + '__' + index}
+                            key={index}
                             onClick={() => handleMonthClick(months[language].indexOf(month))}
                             className={`w-full ${sizeClasses[size]} transition-colors duration-300 ${month === months[language][currentMonth] ? 'font-bold bg-blue-100' : 'hover:bg-gray-200'}`}
                             aria-selected={month === months[language][currentMonth]}
@@ -215,7 +223,7 @@ const DatePicker = ({
                     <div className="grid grid-cols-7 gap-1" role="row">
                         {weekDays[language].map((day, index) => (
                             <div
-                                key={day + '__' + index}
+                                key={index}
                                 className={`text-center font-semibold ${sizeClasses[size]} ${isSelectedDay(index) ? 'bg-blue-100' : ''}`}
                                 role="columnheader"
                             >
