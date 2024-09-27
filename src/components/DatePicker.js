@@ -197,7 +197,7 @@ const DatePicker = ({
                 <div className="w-20 bg-gray-100 flex flex-col items-center justify-center" role="group" aria-label={labels[language].month}>
                     {getVisibleMonths().map(({ month, year }, index) => (
                         <button
-                            key={year+ '' + index}
+                            key={year + '__' + index}
                             onClick={() => handleMonthClick(months[language].indexOf(month))}
                             className={`w-full ${sizeClasses[size]} transition-colors duration-300 ${month === months[language][currentMonth] ? 'font-bold bg-blue-100' : 'hover:bg-gray-200'}`}
                             aria-selected={month === months[language][currentMonth]}
@@ -215,7 +215,7 @@ const DatePicker = ({
                     <div className="grid grid-cols-7 gap-1" role="row">
                         {weekDays[language].map((day, index) => (
                             <div
-                                key={day}
+                                key={day + '__' + index}
                                 className={`text-center font-semibold ${sizeClasses[size]} ${isSelectedDay(index) ? 'bg-blue-100' : ''}`}
                                 role="columnheader"
                             >
@@ -227,7 +227,7 @@ const DatePicker = ({
                         <div className="grid grid-cols-7 gap-1">
                             {visibleDates.map((date, index) => (
                                 <button
-                                    key={index}
+                                    key={date.toDateString() + '__' + index}
                                     onClick={() => handleDateClick(date)}
                                     onFocus={() => setFocusedDate(date)}
                                     className={`text-center ${sizeClasses[size]} rounded transition-colors duration-300 ${isSelectedDate(date) ? 'bg-blue-500 text-white' : 'hover:bg-gray-200'
