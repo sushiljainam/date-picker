@@ -1,14 +1,51 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
-const DatePicker = ({ initialDate, onChange }) => {
+const DatePicker = ({
+    initialDate,
+    onChange,
+    language = 'en',
+    size = 'medium' // 'compact', 'medium', or 'cozy'
+}) => {
     const [selectedDate, setSelectedDate] = useState(initialDate || new Date());
     const [currentYear, setCurrentYear] = useState(selectedDate.getFullYear());
     const [currentMonth, setCurrentMonth] = useState(selectedDate.getMonth());
     const [visibleDates, setVisibleDates] = useState([]);
+    const [focusedDate, setFocusedDate] = useState(null);
+    const datePickerRef = useRef(null);
 
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const weekDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-    const weekDaysFull = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const months = {
+        en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        hi: ['जन', 'फर', 'मार्च', 'अप्रै', 'मई', 'जून', 'जुल', 'अग', 'सित', 'अक्टू', 'नव', 'दिस']
+    };
+    const weekDays = {
+        en: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+        hi: ['र', 'सो', 'मं', 'बु', 'गु', 'शु', 'श']
+    };
+    const weekDaysFull = {
+        en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+        hi: ['रवि', 'सोम', 'मंगल', 'बुध', 'गुरु', 'शुक्र', 'शनि']
+    };
+
+    const labels = {
+        en: {
+            today: 'Today',
+            selected: 'Selected Date:',
+            year: 'Year',
+            month: 'Month'
+        },
+        hi: {
+            today: 'आज',
+            selected: 'चयनित तिथि:',
+            year: 'वर्ष',
+            month: 'महीना'
+        }
+    };
+
+    const sizeClasses = {
+        compact: 'text-xs p-1',
+        medium: 'text-sm p-2',
+        cozy: 'text-base p-3'
+    };
 
     const generateDates = (centerDate) => {
         const dates = [];
@@ -59,6 +96,13 @@ const DatePicker = ({ initialDate, onChange }) => {
         setCurrentMonth(month);
     };
 
+    const handleTodayClick = () => {
+        const today = new Date();
+        setSelectedDate(today);
+        setCurrentYear(today.getFullYear());
+        setCurrentMonth(today.getMonth());
+    };
+
     const isSelectedDate = (date) => {
         return date.toDateString() === selectedDate.toDateString();
     };
@@ -72,79 +116,144 @@ const DatePicker = ({ initialDate, onChange }) => {
         return [-2, -1, 0, 1, 2].map(offset => {
             const index = (monthIndex + offset + 12) % 12;
             const year = currentYear + Math.floor((monthIndex + offset) / 12);
-            return { month: months[index], year };
-        });
-    };
+    return { month: months[language][index], year };
+});
+};
 
     const shouldShowMonth = (date) => {
         return date.getDate() === 1 || date.getDay() === 0 || isSelectedDate(date);
     };
 
+    const handleKeyDown = (e) => {
+        if (!focusedDate) return;
+
+        const currentIndex = visibleDates.findIndex(date => date.toDateString() === focusedDate.toDateString());
+        let newIndex;
+
+        switch (e.key) {
+            case 'ArrowLeft':
+                newIndex = Math.max(0, currentIndex - 1);
+                break;
+            case 'ArrowRight':
+                newIndex = Math.min(visibleDates.length - 1, currentIndex + 1);
+                break;
+            case 'ArrowUp':
+                newIndex = Math.max(0, currentIndex - 7);
+                break;
+            case 'ArrowDown':
+                newIndex = Math.min(visibleDates.length - 1, currentIndex + 7);
+                break;
+            case 'Enter':
+                handleDateClick(focusedDate);
+                return;
+            default:
+                return;
+        }
+
+        setFocusedDate(visibleDates[newIndex]);
+        e.preventDefault();
+    };
+
+    useEffect(() => {
+        if (datePickerRef.current) {
+            datePickerRef.current.focus();
+        }
+    }, []);
+
     return (
-        <div>
-            <div className="flex border rounded-lg overflow-hidden shadow-lg">
-                {/* Year selector */}
-                <div className="w-20 bg-gray-100 flex flex-col items-center justify-center">
-                    {[currentYear - 1, currentYear, currentYear + 1].map((year) => (
-                        <button
-                            key={year}
-                            onClick={() => handleYearClick(year)}
-                            className={`w-full p-2 transition-colors duration-300 ${year === currentYear ? 'font-bold bg-blue-100' : 'hover:bg-gray-200'}`}
-                        >
-                            {year}
-                        </button>
-                    ))}
+    <div
+        ref={datePickerRef}
+        tabIndex="0"
+        onKeyDown={handleKeyDown}
+        className="focus:outline-none"
+        role="application"
+        aria-label="Date picker"
+    >
+        <div className="flex border rounded-lg overflow-hidden shadow-lg">
+            {/* Year selector */}
+            <div className="w-20 bg-gray-100 flex flex-col items-center justify-center" role="group" aria-label={labels[language].year}>
+                {[currentYear - 1, currentYear, currentYear + 1].map((year) => (
+                    <button
+                        key={year}
+                        onClick={() => handleYearClick(year)}
+        className={`w-full ${sizeClasses[size]} transition-colors duration-300 ${year === currentYear ? 'font-bold bg-blue-100' : 'hover:bg-gray-200'}`}
+        aria-selected={year === currentYear}
+        role="option"
+    >
+        {year}
+    </button>
+))}
+            </div>
+            {/* Month selector */}
+            <div className="w-20 bg-gray-100 flex flex-col items-center justify-center" role="group" aria-label={labels[language].month}>
+                {getVisibleMonths().map(({ month, year }, index) => (
+                    <button
+                        key={index}
+        onClick={() => handleMonthClick(months[language].indexOf(month))}
+        className={`w-full ${sizeClasses[size]} transition-colors duration-300 ${month === months[language][currentMonth] ? 'font-bold bg-blue-100' : 'hover:bg-gray-200'}`}
+        aria-selected={month === months[language][currentMonth]}
+        role="option"
+    >
+        <div>{month}</div>
+        {(month === months[language][0] || month === months[language][11]) && (
+            <div className="text-xs text-gray-500">{year}</div>
+        )}
+    </button>
+))}
+            </div>
+            {/* Calendar */}
+            <div className="flex-1 p-2">
+                <div className="grid grid-cols-7 gap-1" role="row">
+                    {weekDays[language].map((day, index) => (
+                        <div
+                            key={day}
+        className={`text-center font-semibold ${sizeClasses[size]} ${isSelectedDay(index) ? 'bg-blue-100' : ''}`}
+        role="columnheader"
+    >
+        {isSelectedDay(index) ? weekDaysFull[language][index] : day}
+    </div>
+))}
                 </div>
-                {/* Month selector */}
-                <div className="w-20 bg-gray-100 flex flex-col items-center justify-center">
-                    {getVisibleMonths().map(({ month, year }, index) => (
-                        <button
-                            key={index}
-                            onClick={() => handleMonthClick(months.indexOf(month))}
-                            className={`w-full p-2 transition-colors duration-300 ${month === months[currentMonth] ? 'font-bold bg-blue-100' : 'hover:bg-gray-200'}`}
-                        >
-                            <div>{month}</div>
-                            {(month === 'Jan' || month === 'Dec') && (
-                                <div className="text-xs text-gray-500">{year}</div>
-                            )}
-                        </button>
-                    ))}
-                </div>
-                {/* Calendar */}
-                <div className="flex-1 p-2">
+                <div className={`h-[${size === 'cozy' ? '150' : '120'}px] overflow-hidden`} role="grid">
                     <div className="grid grid-cols-7 gap-1">
-                        {weekDays.map((day, index) => (
-                            <div
-                                key={day}
-                                className={`text-center font-semibold text-xs p-1 ${isSelectedDay(index) ? 'bg-blue-100' : ''}`}
-                            >
-                                {isSelectedDay(index) ? weekDaysFull[index] : day}
-                            </div>
-                        ))}
-                    </div>
-                    <div className="h-[120px] overflow-hidden">
-                        <div className="grid grid-cols-7 gap-1">
-                            {visibleDates.map((date, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => handleDateClick(date)}
-                                    className={`text-center p-1 rounded transition-colors duration-300 ${isSelectedDate(date) ? 'bg-blue-500 text-white' : 'hover:bg-gray-200'
-                                        } ${date.getMonth() !== currentMonth ? 'text-gray-400' : ''}`}
-                                >
-                                    <div className="text-sm">{date.getDate()}</div>
-                                    {shouldShowMonth(date) && (
+                        {visibleDates.map((date, index) => (
+                            <button
+                                key={index}
+                                onClick={() => handleDateClick(date)}
+        onFocus={() => setFocusedDate(date)}
+        className={`text-center ${sizeClasses[size]} rounded transition-colors duration-300 ${isSelectedDate(date) ? 'bg-blue-500 text-white' : 'hover:bg-gray-200'
+            } ${date.getMonth() !== currentMonth ? 'text-gray-400' : ''} ${focusedDate && focusedDate.toDateString() === date.toDateString() ? 'ring-2 ring-blue-300' : ''
+            }`}
+        aria-selected={isSelectedDate(date)}
+        role="gridcell"
+        tabIndex={focusedDate && focusedDate.toDateString() === date.toDateString() ? 0 : -1}
+        aria-label={`${date.getDate()} ${months[language][date.getMonth()]} ${date.getFullYear()}`}
+    >
+        <div className={sizeClasses[size]}>{date.getDate()}</div>
+        {shouldShowMonth(date) && (
             <div className={`text-xs ${isSelectedDate(date) ? 'text-white' : 'text-gray-500'}`}>
-                {date.toLocaleDateString('en-US', { month: 'short' })}
+                {months[language][date.getMonth()]} {date.getFullYear()}
             </div>
         )}
     </button>
 ))}
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div className="mt-2 p-2 border rounded">
-            Selected Date: {selectedDate.toDateString()}
+</div>
+</div>
+</div>
+</div>
+        <button
+            onClick={handleTodayClick}
+            className={`mt-2 bg-blue-500 text-white rounded ${sizeClasses[size]} hover:bg-blue-600 transition-colors duration-300`}
+            aria-label={labels[language].today}
+        >
+            {labels[language].today}
+        </button>
+        <div className="mt-2 p-2 border rounded" role="status" aria-live="polite">
+            {labels[language].selected} {selectedDate.toLocaleDateString(language === 'en' ? 'en-US' : 'hi-IN', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            })}
         </div>
     </div>
 );
