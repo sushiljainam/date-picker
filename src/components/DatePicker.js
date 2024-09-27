@@ -50,8 +50,9 @@ const DatePicker = ({
 
     const containerClasses = {
         compact: 'w-64 sm:w-72',
-        medium: 'w-72 sm:w-80 md:w-96',
-        cozy: ''
+        medium: 'w-80 sm:w-96', // Adjusted for better date grid width
+        // cozy: ''
+        cozy: 'w-96 sm:w-112',
     };
 
     const generateDates = (centerDate) => {
@@ -236,13 +237,15 @@ const DatePicker = ({
                             <button
                                 key={index}
                                 onClick={() => handleMonthClick(months[language].indexOf(month))}
-                                className={`w-full ${sizeClasses[size]} transition-colors duration-300 ${month === months[language][currentMonth] ? 'font-bold bg-blue-100' : 'hover:bg-gray-200'}`}
+                                className={`w-full ${sizeClasses[size]} transition-colors duration-300 ${month === months[language][currentMonth] ? 'font-bold bg-blue-100' : 'hover:bg-gray-200'} relative`}
                                 aria-selected={month === months[language][currentMonth]}
                                 role="option"
                             >
                                 <div>{month}</div>
-                                {size !== 'compact' && (month === months[language][0] || month === months[language][11]) && (
-                                    <div className="text-xs text-gray-500">{year}</div>
+                                {(month === months[language][0] || month === months[language][11]) && (
+                                    <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center text-xs text-gray-500 opacity-50">
+                                        {year}
+                                    </div>
                                 )}
                             </button>
                         ))}
@@ -261,15 +264,17 @@ const DatePicker = ({
                             </div>
                         ))}
                     </div>
-                    <div className={`h-[${size === 'cozy' || size === 'medium' ? '150' : '120'}px] overflow-hidden`} role="grid">
+                    <div className={`h-[${size === 'cozy' ? '180' : size === 'medium' ? '150' : '120'}px] overflow-hidden`} role="grid">
                         <div className="grid grid-cols-7 gap-1">
                             {visibleDates.map((date, index) => (
                                 <button
                                     key={date.toDateString() + '__' + index}
                                     onClick={() => handleDateClick(date)}
                                     onFocus={() => setFocusedDate(date)}
-                                    className={`text-center ${sizeClasses[size]} rounded transition-colors duration-300 ${isSelectedDate(date) ? 'bg-blue-500 text-white' : 'hover:bg-gray-200'
-                                        } ${date.getMonth() !== currentMonth ? 'text-gray-400' : ''} ${focusedDate && focusedDate.toDateString() === date.toDateString() ? 'ring-2 ring-blue-300' : ''
+                                    className={`text-center ${sizeClasses[size]} rounded transition-colors duration-300 ${
+                                        isSelectedDate(date) ? 'bg-blue-500 text-white' : 'hover:bg-gray-200'
+                                    } ${date.getMonth() !== currentMonth ? 'text-gray-400' : ''} ${
+                                        focusedDate && focusedDate.toDateString() === date.toDateString() ? 'ring-2 ring-blue-300' : ''
                                         }`}
                                     aria-selected={isSelectedDate(date)}
                                     role="gridcell"
