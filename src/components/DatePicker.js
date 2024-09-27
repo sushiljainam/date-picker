@@ -243,7 +243,7 @@ const DatePicker = ({
                             >
                                 <div>{month}</div>
                                 {(month === months[language][0] || month === months[language][11]) && (
-                                    <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center text-xs text-gray-500 opacity-50">
+                                    <div className="absolute top-0 left-0 w-full h-full flex justify-center text-xs text-gray-500 opacity-50">
                                         {year}
                                     </div>
                                 )}
