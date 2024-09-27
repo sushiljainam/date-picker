@@ -48,6 +48,12 @@ const DatePicker = ({
         cozy: 'text-base p-3'
     };
 
+    const containerClasses = {
+        compact: 'w-64 sm:w-72',
+        medium: 'w-72 sm:w-80 md:w-96',
+        cozy: 'w-80 sm:w-96 md:w-112 lg:w-128'
+    };
+
     const generateDates = (centerDate) => {
         const dates = [];
         const startDate = new Date(centerDate);
@@ -73,10 +79,10 @@ const DatePicker = ({
     }, [initialDate]);
 
     useEffect(() => {
-            setVisibleDates(generateDates(selectedDate));
+        setVisibleDates(generateDates(selectedDate));
         if (onChange && selectedDate.getTime() !== prevInitialDateRef.current?.getTime()) {
-                onChange(selectedDate);
-            }
+            onChange(selectedDate);
+        }
     }, [selectedDate, onChange]);
 
     const handleDateClick = (date) => {
@@ -190,41 +196,44 @@ const DatePicker = ({
             ref={datePickerRef}
             tabIndex="0"
             onKeyDown={handleKeyDown}
-            className="focus:outline-none"
+            className={`focus:outline-none ${containerClasses[size]}`}
             role="application"
             aria-label="Date picker"
         >
-            <div className="flex border rounded-lg overflow-hidden shadow-lg">
-                {/* Year selector */}
-                <div className="w-20 bg-gray-100 flex flex-col items-center justify-center" role="group" aria-label={labels[language].year}>
-                    {[currentYear - 2, currentYear - 1, currentYear, currentYear + 1, currentYear + 2].map((year) => (
-                        <button
-                            key={year}
-                            onClick={() => handleYearClick(year)}
-                            className={`w-full ${sizeClasses[size]} transition-colors duration-300 ${year === currentYear ? 'font-bold bg-blue-100' : 'hover:bg-gray-200'}`}
-                            aria-selected={year === currentYear}
-                            role="option"
-                        >
-                            {year}
-                        </button>
-                    ))}
-                </div>
-                {/* Month selector */}
-                <div className="w-20 bg-gray-100 flex flex-col items-center justify-center" role="group" aria-label={labels[language].month}>
-                    {getVisibleMonths().map(({ month, year }, index) => (
-                        <button
-                            key={index}
-                            onClick={() => handleMonthClick(months[language].indexOf(month))}
-                            className={`w-full ${sizeClasses[size]} transition-colors duration-300 ${month === months[language][currentMonth] ? 'font-bold bg-blue-100' : 'hover:bg-gray-200'}`}
-                            aria-selected={month === months[language][currentMonth]}
-                            role="option"
-                        >
-                            <div>{month}</div>
-                            {(month === months[language][0] || month === months[language][11]) && (
-                                <div className="text-xs text-gray-500">{year}</div>
-                            )}
-                        </button>
-                    ))}
+            <div className="flex flex-col sm:flex-row border rounded-lg overflow-hidden shadow-lg">
+                {/* Year and Month selectors */}
+                <div className="flex sm:flex-col">
+                    {/* Year selector */}
+                    <div className="w-1/2 sm:w-20 bg-gray-100 flex flex-row sm:flex-col items-center justify-center" role="group" aria-label={labels[language].year}>
+                        {[currentYear - 2, currentYear - 1, currentYear, currentYear + 1, currentYear + 2].map((year) => (
+                            <button
+                                key={year}
+                                onClick={() => handleYearClick(year)}
+                                className={`w-full ${sizeClasses[size]} transition-colors duration-300 ${year === currentYear ? 'font-bold bg-blue-100' : 'hover:bg-gray-200'}`}
+                                aria-selected={year === currentYear}
+                                role="option"
+                            >
+                                {year}
+                            </button>
+                        ))}
+                    </div>
+                    {/* Month selector */}
+                    <div className="w-1/2 sm:w-20 bg-gray-100 flex flex-row sm:flex-col items-center justify-center" role="group" aria-label={labels[language].month}>
+                        {getVisibleMonths().map(({ month, year }, index) => (
+                            <button
+                                key={index}
+                                onClick={() => handleMonthClick(months[language].indexOf(month))}
+                                className={`w-full ${sizeClasses[size]} transition-colors duration-300 ${month === months[language][currentMonth] ? 'font-bold bg-blue-100' : 'hover:bg-gray-200'}`}
+                                aria-selected={month === months[language][currentMonth]}
+                                role="option"
+                            >
+                                <div>{month}</div>
+                                {size !== 'compact' && (month === months[language][0] || month === months[language][11]) && (
+                                    <div className="text-xs text-gray-500">{year}</div>
+                                )}
+                            </button>
+                        ))}
+                    </div>
                 </div>
                 {/* Calendar */}
                 <div className="flex-1 p-2">
@@ -235,7 +244,7 @@ const DatePicker = ({
                                 className={`text-center font-semibold ${sizeClasses[size]} ${isSelectedDay(index) ? 'bg-blue-100' : ''}`}
                                 role="columnheader"
                             >
-                                {isSelectedDay(index) ? weekDaysFull[language][index] : day}
+                                {isSelectedDay(index) && size !== 'compact' ? weekDaysFull[language][index] : day}
                             </div>
                         ))}
                     </div>
@@ -255,7 +264,7 @@ const DatePicker = ({
                                     aria-label={`${date.getDate()} ${months[language][date.getMonth()]} ${date.getFullYear()}`}
                                 >
                                     <div className={sizeClasses[size]}>{date.getDate()}</div>
-                                    {getDateDisplay(date) && (
+                                    {size !== 'compact' && getDateDisplay(date) && (
                                         <div className={`text-xs ${isSelectedDate(date) ? 'text-white' : 'text-gray-500'} ${isSelectedDate(date) ? 'text-[0.65rem]' : ''} whitespace-nowrap overflow-hidden text-ellipsis`}>
                                             {getDateDisplay(date)}
                                         </div>
@@ -266,19 +275,21 @@ const DatePicker = ({
                     </div>
                 </div>
             </div>
-            <button
-                onClick={handleTodayClick}
-                className={`mt-2 bg-blue-500 text-white rounded ${sizeClasses[size]} hover:bg-blue-600 transition-colors duration-300`}
-                aria-label={labels[language].today}
-            >
-                {labels[language].today}
-            </button>
-            <div className="mt-2 p-2 border rounded" role="status" aria-live="polite">
-                {labels[language].selected} {selectedDate.toLocaleDateString(language === 'en' ? 'en-US' : 'hi-IN', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                })}
+            <div className="mt-2 flex flex-col sm:flex-row justify-between items-center">
+                <button
+                    onClick={handleTodayClick}
+                    className={`mb-2 sm:mb-0 bg-blue-500 text-white rounded ${sizeClasses[size]} hover:bg-blue-600 transition-colors duration-300`}
+                    aria-label={labels[language].today}
+                >
+                    {labels[language].today}
+                </button>
+                <div className="text-sm sm:text-base p-2 border rounded" role="status" aria-live="polite">
+                    {labels[language].selected} {selectedDate.toLocaleDateString(language === 'en' ? 'en-US' : 'hi-IN', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    })}
+                </div>
             </div>
         </div>
     );
