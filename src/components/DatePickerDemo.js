@@ -14,7 +14,7 @@ const DatePickerDemo = () => {
 
     const handleDateChange = (date) => {
         console.log('Selected date:', date);
-        handleDateChange('initialDate', date);
+        setSettings(prev => ({ ...prev, initialDate: date }));
     };
 
     return (

@@ -3,15 +3,16 @@ import React, { useState, useEffect, useRef } from 'react';
 const DatePicker = ({
     initialDate,
     onChange,
-    language = 'en', // 'en', 'hi
+    language = 'en', // 'en', 'hi'
     size = 'medium' // 'compact', 'medium', or 'cozy'
 }) => {
-    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [selectedDate, setSelectedDate] = useState(initialDate || new Date());
     const [currentYear, setCurrentYear] = useState(selectedDate.getFullYear());
     const [currentMonth, setCurrentMonth] = useState(selectedDate.getMonth());
     const [visibleDates, setVisibleDates] = useState([]);
     const [focusedDate, setFocusedDate] = useState(null);
     const datePickerRef = useRef(null);
+    const initialRender = useRef(true);
 
     const months = {
         en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -62,12 +63,16 @@ const DatePicker = ({
     };
 
     useEffect(() => {
-        if (initialDate === selectedDate) {
+        if (initialRender.current) {
+            initialRender.current = false;
             return;
         }
-        setVisibleDates(generateDates(selectedDate));
-        if (onChange) {
-            onChange(selectedDate);
+
+        if (!initialDate || initialDate.getTime() !== selectedDate.getTime()) {
+            setVisibleDates(generateDates(selectedDate));
+            if (onChange) {
+                onChange(selectedDate);
+            }
         }
     }, [initialDate, selectedDate, onChange]);
 
