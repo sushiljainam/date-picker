@@ -197,7 +197,7 @@ const DatePicker = ({
             <div className="flex border rounded-lg overflow-hidden shadow-lg">
                 {/* Year selector */}
                 <div className="w-20 bg-gray-100 flex flex-col items-center justify-center" role="group" aria-label={labels[language].year}>
-                    {[currentYear - 1, currentYear, currentYear + 1].map((year) => (
+                    {[currentYear - 2, currentYear - 1, currentYear, currentYear + 1, currentYear + 2].map((year) => (
                         <button
                             key={year}
                             onClick={() => handleYearClick(year)}
