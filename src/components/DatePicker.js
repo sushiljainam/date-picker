@@ -23,29 +23,15 @@ const DatePicker = ({ initialDate }) => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const weekDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
-    const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
-    const getFirstDayOfMonth = (year, month) => new Date(year, month, 1).getDay();
-
     const generateDates = () => {
-        const daysInMonth = getDaysInMonth(currentYear, currentMonth);
-        const firstDay = getFirstDayOfMonth(currentYear, currentMonth);
-        const dates = [];
+      const dates = [];
+      const startDate = new Date(selectedDate);
+      startDate.setDate(selectedDate.getDate() - 7); // Start from a week before
 
-      // Previous month's dates
-      const prevMonthDays = getDaysInMonth(currentYear, currentMonth - 1);
-      for (let i = firstDay - 1; i >= 0; i--) {
-          dates.push(new Date(currentYear, currentMonth - 1, prevMonthDays - i));
-      }
-
-      // Current month's dates
-      for (let i = 1; i <= daysInMonth; i++) {
-          dates.push(new Date(currentYear, currentMonth, i));
-      }
-
-      // Next month's dates
-      const remainingDays = 42 - dates.length; // 6 weeks total
-      for (let i = 1; i <= remainingDays; i++) {
-          dates.push(new Date(currentYear, currentMonth + 1, i));
+      for (let i = 0; i < 21; i++) { // Generate 3 weeks of dates
+          const date = new Date(startDate);
+          date.setDate(startDate.getDate() + i);
+          dates.push(date);
       }
 
       return dates;
@@ -53,24 +39,30 @@ const DatePicker = ({ initialDate }) => {
 
     const handleDateClick = (date) => {
         setSelectedDate(date);
-    };
+      setCurrentYear(date.getFullYear());
+      setCurrentMonth(date.getMonth());
+  };
 
     const handleYearClick = (year) => {
-        setCurrentYear(year);
-      setSelectedDate(new Date(year, 0, 1)); // Set to January 1st of the selected year
+      const newDate = new Date(selectedDate);
+      newDate.setFullYear(year);
+      setSelectedDate(newDate);
+      setCurrentYear(year);
   };
 
     const handleMonthClick = (month) => {
-      if (month < 0) {
-          setCurrentYear(prev => prev - 1);
-          setCurrentMonth(11);
-      } else if (month > 11) {
-          setCurrentYear(prev => prev + 1);
-          setCurrentMonth(0);
-      } else {
-        setCurrentMonth(month);
+      let year = currentYear;
+      if (currentMonth === 11 && month === 0) {
+          year++;
+      } else if (currentMonth === 0 && month === 11) {
+          year--;
       }
-      setSelectedDate(new Date(currentYear, month, 1)); // Set to 1st of the selected month
+      const newDate = new Date(selectedDate);
+      newDate.setFullYear(year);
+      newDate.setMonth(month);
+      setSelectedDate(newDate);
+      setCurrentYear(year);
+      setCurrentMonth(month);
   };
 
     const isSelectedDate = (date) => {
@@ -80,36 +72,40 @@ const DatePicker = ({ initialDate }) => {
     const dates = generateDates();
 
     const getVisibleMonths = () => {
-      const monthIndex = currentMonth;
-      return [-2, -1, 0, 1, 2].map(offset => {
-          const index = (monthIndex + offset + 12) % 12;
-          return months[index];
-      });
+        const monthIndex = currentMonth;
+        return [-2, -1, 0, 1, 2].map(offset => {
+            const index = (monthIndex + offset + 12) % 12;
+        const year = currentYear + Math.floor((monthIndex + offset) / 12);
+        return { month: months[index], year };
+    });
   };
 
     return (
         <div className="flex border rounded-lg overflow-hidden shadow-lg">
-          {/* Year selector */}
-          <div className="w-20 bg-gray-100 flex flex-col items-center justify-center">
-              {[currentYear - 1, currentYear, currentYear + 1].map((year) => (
-                  <button
-                      key={year}
-                      onClick={() => handleYearClick(year)}
-                className={`w-full p-2 transition-colors duration-300 ${year === currentYear ? 'font-bold bg-blue-100' : 'hover:bg-gray-200'}`}
-            >
-                {year}
-            </button>
+            {/* Year selector */}
+            <div className="w-20 bg-gray-100 flex flex-col items-center justify-center">
+                {[currentYear - 1, currentYear, currentYear + 1].map((year) => (
+                    <button
+                        key={year}
+                        onClick={() => handleYearClick(year)}
+                        className={`w-full p-2 transition-colors duration-300 ${year === currentYear ? 'font-bold bg-blue-100' : 'hover:bg-gray-200'}`}
+                    >
+                        {year}
+                    </button>
         ))}
           </div>
           {/* Month selector */}
-          <div className="w-16 bg-gray-100 flex flex-col items-center justify-center">
-              {getVisibleMonths().map((month, index) => (
+          <div className="w-20 bg-gray-100 flex flex-col items-center justify-center">
+              {getVisibleMonths().map(({ month, year }, index) => (
                   <button
                       key={index}
                       onClick={() => handleMonthClick(months.indexOf(month))}
-                className={`w-full p-2 transition-colors duration-300 ${month === months[currentMonth] ? 'font-bold bg-blue-100' : 'hover:bg-gray-200'}`}
-            >
-                {month}
+                      className={`w-full p-2 transition-colors duration-300 ${month === months[currentMonth] ? 'font-bold bg-blue-100' : 'hover:bg-gray-200'}`}
+                  >
+                <div>{month}</div>
+                {(month === 'Jan' || month === 'Dec') && (
+                    <div className="text-xs text-gray-500">{year}</div>
+                )}
             </button>
         ))}
           </div>
@@ -122,7 +118,7 @@ const DatePicker = ({ initialDate }) => {
                       </div>
                   ))}
               </div>
-              <div ref={dateRowRef} className="h-[180px] overflow-y-auto">
+              <div ref={dateRowRef} className="h-[120px] overflow-y-auto">
                   <div className="grid grid-cols-7 gap-1">
                       {dates.map((date, index) => (
                           <button
