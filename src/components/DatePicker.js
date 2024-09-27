@@ -121,8 +121,17 @@ const DatePicker = ({
 };
 
     const shouldShowMonth = (date) => {
-        return date.getDate() === 1 || date.getDay() === 0 || isSelectedDate(date);
+    return date.getDate() === 1 || date.getDay() === 0;
     };
+
+    const getDateDisplay = (date) => {
+        if (isSelectedDate(date)) {
+          return `${months[language][date.getMonth()]} ${date.getFullYear()}`;
+        } else if (shouldShowMonth(date)) {
+          return months[language][date.getMonth()];
+        }
+        return '';
+      };
 
     const handleKeyDown = (e) => {
         if (!focusedDate) return;
@@ -221,8 +230,10 @@ const DatePicker = ({
                                 key={index}
                                 onClick={() => handleDateClick(date)}
         onFocus={() => setFocusedDate(date)}
-        className={`text-center ${sizeClasses[size]} rounded transition-colors duration-300 ${isSelectedDate(date) ? 'bg-blue-500 text-white' : 'hover:bg-gray-200'
-            } ${date.getMonth() !== currentMonth ? 'text-gray-400' : ''} ${focusedDate && focusedDate.toDateString() === date.toDateString() ? 'ring-2 ring-blue-300' : ''
+                  className={`text-center ${sizeClasses[size]} rounded transition-colors duration-300 ${
+                    isSelectedDate(date) ? 'bg-blue-500 text-white' : 'hover:bg-gray-200'
+                  } ${date.getMonth() !== currentMonth ? 'text-gray-400' : ''} ${
+                    focusedDate && focusedDate.toDateString() === date.toDateString() ? 'ring-2 ring-blue-300' : ''
             }`}
         aria-selected={isSelectedDate(date)}
         role="gridcell"
@@ -230,9 +241,9 @@ const DatePicker = ({
         aria-label={`${date.getDate()} ${months[language][date.getMonth()]} ${date.getFullYear()}`}
     >
         <div className={sizeClasses[size]}>{date.getDate()}</div>
-        {shouldShowMonth(date) && (
-            <div className={`text-xs ${isSelectedDate(date) ? 'text-white' : 'text-gray-500'}`}>
-                {months[language][date.getMonth()]} {date.getFullYear()}
+                  {getDateDisplay(date) && (
+                    <div className={`text-xs ${isSelectedDate(date) ? 'text-white' : 'text-gray-500'} ${isSelectedDate(date) ? 'text-[0.65rem]' : ''} whitespace-nowrap overflow-hidden text-ellipsis`}>
+                      {getDateDisplay(date)}
             </div>
         )}
     </button>
