@@ -19,8 +19,8 @@ const DatePicker = ({
         hi: ['जन', 'फर', 'मार्च', 'अप्रै', 'मई', 'जून', 'जुल', 'अग', 'सित', 'अक्टू', 'नव', 'दिस']
     };
     const weekDays = {
-        en: ['Sun', 'M', 'T', 'W', 'T', 'F', 'S'],
-        hi: ['रवि', 'सो', 'मं', 'बु', 'गु', 'शु', 'श']
+        en: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+        hi: ['र', 'सो', 'मं', 'बु', 'गु', 'शु', 'श']
     };
     const weekDaysFull = {
         en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
@@ -51,7 +51,7 @@ const DatePicker = ({
     const containerClasses = {
         compact: 'w-64 sm:w-72',
         medium: 'w-72 sm:w-80 md:w-96',
-        cozy: 'w-80 sm:w-96 md:w-112 lg:w-128'
+        cozy: ''
     };
 
     const generateDates = (centerDate) => {
@@ -202,9 +202,9 @@ const DatePicker = ({
         >
             <div className="flex flex-col sm:flex-row border rounded-lg overflow-hidden shadow-lg">
                 {/* Year and Month selectors */}
-                <div className="flex sm:flex-col">
+                <div className="flex flex-col sm:flex-row">
                     {/* Year selector */}
-                    <div className="w-1/2 sm:w-20 bg-gray-100 flex flex-row sm:flex-col items-center justify-center" role="group" aria-label={labels[language].year}>
+                    <div className="sm:w-20 bg-gray-100 flex flex-row sm:flex-col items-center justify-center" role="group" aria-label={labels[language].year}>
                         {[currentYear - 2, currentYear - 1, currentYear, currentYear + 1, currentYear + 2].map((year) => (
                             <button
                                 key={year}
@@ -218,7 +218,7 @@ const DatePicker = ({
                         ))}
                     </div>
                     {/* Month selector */}
-                    <div className="w-1/2 sm:w-20 bg-gray-100 flex flex-row sm:flex-col items-center justify-center" role="group" aria-label={labels[language].month}>
+                    <div className="sm:w-20 bg-gray-100 flex flex-row sm:flex-col items-center justify-center" role="group" aria-label={labels[language].month}>
                         {getVisibleMonths().map(({ month, year }, index) => (
                             <button
                                 key={index}
@@ -244,11 +244,11 @@ const DatePicker = ({
                                 className={`text-center font-semibold ${sizeClasses[size]} ${isSelectedDay(index) ? 'bg-blue-100' : ''}`}
                                 role="columnheader"
                             >
-                                {isSelectedDay(index) && size !== 'compact' ? weekDaysFull[language][index] : day}
+                                {(isSelectedDay(index) || index === 0) && size === 'cozy' ? weekDaysFull[language][index] : day}
                             </div>
                         ))}
                     </div>
-                    <div className={`h-[${size === 'cozy' ? '150' : '120'}px] overflow-hidden`} role="grid">
+                    <div className={`h-[${size === 'cozy' || size === 'medium' ? '150' : '120'}px] overflow-hidden`} role="grid">
                         <div className="grid grid-cols-7 gap-1">
                             {visibleDates.map((date, index) => (
                                 <button
@@ -264,7 +264,7 @@ const DatePicker = ({
                                     aria-label={`${date.getDate()} ${months[language][date.getMonth()]} ${date.getFullYear()}`}
                                 >
                                     <div className={sizeClasses[size]}>{date.getDate()}</div>
-                                    {size !== 'compact' && getDateDisplay(date) && (
+                                    {size === 'cozy' && getDateDisplay(date) && (
                                         <div className={`text-xs ${isSelectedDate(date) ? 'text-white' : 'text-gray-500'} ${isSelectedDate(date) ? 'text-[0.65rem]' : ''} whitespace-nowrap overflow-hidden text-ellipsis`}>
                                             {getDateDisplay(date)}
                                         </div>
