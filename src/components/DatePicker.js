@@ -26,9 +26,9 @@ const DatePicker = ({ initialDate, onChange }) => {
 
     useEffect(() => {
         setVisibleDates(generateDates(selectedDate));
-    if (onChange) {
-        onChange(selectedDate);
-    }
+        if (onChange) {
+            onChange(selectedDate);
+        }
 }, [selectedDate, onChange]);
 
     const handleDateClick = (date) => {
@@ -76,59 +76,63 @@ const DatePicker = ({ initialDate, onChange }) => {
         });
     };
 
+    const shouldShowMonth = (date) => {
+        return date.getDate() === 1 || date.getDay() === 0 || isSelectedDate(date);
+    };
+
     return (
-    <div>
-        <div className="flex border rounded-lg overflow-hidden shadow-lg">
-            {/* Year selector */}
-            <div className="w-20 bg-gray-100 flex flex-col items-center justify-center">
-                {[currentYear - 1, currentYear, currentYear + 1].map((year) => (
-                    <button
-                        key={year}
-                        onClick={() => handleYearClick(year)}
-                        className={`w-full p-2 transition-colors duration-300 ${year === currentYear ? 'font-bold bg-blue-100' : 'hover:bg-gray-200'}`}
-                    >
-                        {year}
-                    </button>
-                ))}
-            </div>
-            {/* Month selector */}
-            <div className="w-20 bg-gray-100 flex flex-col items-center justify-center">
-                {getVisibleMonths().map(({ month, year }, index) => (
-                    <button
-                        key={index}
-                        onClick={() => handleMonthClick(months.indexOf(month))}
-                        className={`w-full p-2 transition-colors duration-300 ${month === months[currentMonth] ? 'font-bold bg-blue-100' : 'hover:bg-gray-200'}`}
-                    >
-                        <div>{month}</div>
-                        {(month === 'Jan' || month === 'Dec') && (
-                            <div className="text-xs text-gray-500">{year}</div>
-                        )}
-                    </button>
-                ))}
-            </div>
-            {/* Calendar */}
-            <div className="flex-1 p-2">
-                <div className="grid grid-cols-7 gap-1">
-                    {weekDays.map((day, index) => (
-                        <div
-                            key={day}
-                            className={`text-center font-semibold text-xs p-1 ${isSelectedDay(index) ? 'bg-blue-100' : ''}`}
+        <div>
+            <div className="flex border rounded-lg overflow-hidden shadow-lg">
+                {/* Year selector */}
+                <div className="w-20 bg-gray-100 flex flex-col items-center justify-center">
+                    {[currentYear - 1, currentYear, currentYear + 1].map((year) => (
+                        <button
+                            key={year}
+                            onClick={() => handleYearClick(year)}
+                            className={`w-full p-2 transition-colors duration-300 ${year === currentYear ? 'font-bold bg-blue-100' : 'hover:bg-gray-200'}`}
                         >
-                            {isSelectedDay(index) ? weekDaysFull[index] : day}
-                        </div>
+                            {year}
+                        </button>
                     ))}
                 </div>
-                <div className="h-[120px] overflow-hidden">
+                {/* Month selector */}
+                <div className="w-20 bg-gray-100 flex flex-col items-center justify-center">
+                    {getVisibleMonths().map(({ month, year }, index) => (
+                        <button
+                            key={index}
+                            onClick={() => handleMonthClick(months.indexOf(month))}
+                            className={`w-full p-2 transition-colors duration-300 ${month === months[currentMonth] ? 'font-bold bg-blue-100' : 'hover:bg-gray-200'}`}
+                        >
+                            <div>{month}</div>
+                            {(month === 'Jan' || month === 'Dec') && (
+                                <div className="text-xs text-gray-500">{year}</div>
+                            )}
+                        </button>
+                    ))}
+                </div>
+                {/* Calendar */}
+                <div className="flex-1 p-2">
                     <div className="grid grid-cols-7 gap-1">
-                        {visibleDates.map((date, index) => (
-                            <button
-                                key={index}
-                                onClick={() => handleDateClick(date)}
-                                className={`text-center p-1 rounded transition-colors duration-300 ${isSelectedDate(date) ? 'bg-blue-500 text-white' : 'hover:bg-gray-200'
-                                    } ${date.getMonth() !== currentMonth ? 'text-gray-400' : ''}`}
+                        {weekDays.map((day, index) => (
+                            <div
+                                key={day}
+                                className={`text-center font-semibold text-xs p-1 ${isSelectedDay(index) ? 'bg-blue-100' : ''}`}
                             >
-                                <div className="text-sm">{date.getDate()}</div>
-                                {(date.getDate() === 1 || date.getDay() === 0) && (
+                                {isSelectedDay(index) ? weekDaysFull[index] : day}
+                            </div>
+                        ))}
+                    </div>
+                    <div className="h-[120px] overflow-hidden">
+                        <div className="grid grid-cols-7 gap-1">
+                            {visibleDates.map((date, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => handleDateClick(date)}
+                                    className={`text-center p-1 rounded transition-colors duration-300 ${isSelectedDate(date) ? 'bg-blue-500 text-white' : 'hover:bg-gray-200'
+                                        } ${date.getMonth() !== currentMonth ? 'text-gray-400' : ''}`}
+                                >
+                                    <div className="text-sm">{date.getDate()}</div>
+                                {shouldShowMonth(date) && (
                                     <div className="text-xs text-gray-500">
                                         {date.toLocaleDateString('en-US', { month: 'short' })}
                                     </div>
