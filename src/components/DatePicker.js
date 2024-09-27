@@ -132,13 +132,13 @@ const DatePicker = ({ initialDate, onChange }) => {
                                         } ${date.getMonth() !== currentMonth ? 'text-gray-400' : ''}`}
                                 >
                                     <div className="text-sm">{date.getDate()}</div>
-                                {shouldShowMonth(date) && (
-                                    <div className="text-xs text-gray-500">
-                                        {date.toLocaleDateString('en-US', { month: 'short' })}
-                                    </div>
-                                )}
-                            </button>
-                        ))}
+                                    {shouldShowMonth(date) && (
+            <div className={`text-xs ${isSelectedDate(date) ? 'text-white' : 'text-gray-500'}`}>
+                {date.toLocaleDateString('en-US', { month: 'short' })}
+            </div>
+        )}
+    </button>
+))}
                     </div>
                 </div>
             </div>
