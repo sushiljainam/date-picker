@@ -197,7 +197,7 @@ const DatePicker = ({
                 <div className="w-20 bg-gray-100 flex flex-col items-center justify-center" role="group" aria-label={labels[language].month}>
                     {getVisibleMonths().map(({ month, year }, index) => (
                         <button
-                            key={index}
+                            key={year+ '' + index}
                             onClick={() => handleMonthClick(months[language].indexOf(month))}
                             className={`w-full ${sizeClasses[size]} transition-colors duration-300 ${month === months[language][currentMonth] ? 'font-bold bg-blue-100' : 'hover:bg-gray-200'}`}
                             aria-selected={month === months[language][currentMonth]}
