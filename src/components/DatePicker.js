@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 const DatePicker = ({
     initialDate,
     onChange,
-    language = 'en',
+    language = 'en', // 'en', 'hi
     size = 'medium' // 'compact', 'medium', or 'cozy'
 }) => {
     const [selectedDate, setSelectedDate] = useState(initialDate || new Date());
