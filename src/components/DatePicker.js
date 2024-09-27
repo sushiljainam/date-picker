@@ -44,15 +44,15 @@ const DatePicker = ({
 
     const sizeClasses = {
         compact: 'text-xs p-1',
-        medium: 'text-sm p-2',
+        medium: 'text-sm p-1',
         cozy: 'text-base p-3'
     };
 
     const containerClasses = {
         compact: 'w-64 sm:w-72',
         medium: 'w-80 sm:w-96', // Adjusted for better date grid width
-        // cozy: ''
-        cozy: 'w-96 sm:w-112',
+        cozy: '',
+        // cozy: 'w-96 sm:w-112',
     };
 
     const generateDates = (centerDate) => {
@@ -160,7 +160,8 @@ const DatePicker = ({
 
     const getDateDisplay = (date) => {
         if (isSelectedDate(date)) {
-            return `${months[language][date.getMonth()]} ${date.getFullYear()}`;
+            return months[language][date.getMonth()];
+            // return `${months[language][date.getMonth()]} ${date.getFullYear()}`;
         } else if (shouldShowMonth(date)) {
             return months[language][date.getMonth()];
         }
