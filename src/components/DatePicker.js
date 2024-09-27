@@ -80,15 +80,16 @@ const DatePicker = ({
 
     useEffect(() => {
         setVisibleDates(generateDates(selectedDate));
-        if (onChange && selectedDate.getTime() !== prevInitialDateRef.current?.getTime()) {
-            onChange(selectedDate);
-        }
-    }, [selectedDate, onChange]);
+    }, [selectedDate]);
 
     const handleDateClick = (date) => {
-        setSelectedDate(date);
-        setCurrentYear(date.getFullYear());
-        setCurrentMonth(date.getMonth());
+        if (onChange) {
+            onChange(date);
+        } else {
+            setSelectedDate(date);
+            setCurrentYear(date.getFullYear());
+            setCurrentMonth(date.getMonth());
+        }
     };
 
     const handleYearClick = (year) => {
@@ -97,8 +98,12 @@ const DatePicker = ({
         }
         const newDate = new Date(selectedDate);
         newDate.setFullYear(year);
-        setSelectedDate(newDate);
-        setCurrentYear(year);
+        if (onChange) {
+            onChange(newDate);
+        } else {
+            setSelectedDate(newDate);
+            setCurrentYear(year);
+        }
     };
 
     const handleMonthClick = (month) => {
@@ -111,16 +116,24 @@ const DatePicker = ({
         const newDate = new Date(selectedDate);
         newDate.setFullYear(year);
         newDate.setMonth(month);
-        setSelectedDate(newDate);
-        setCurrentYear(year);
-        setCurrentMonth(month);
+        if (onChange) {
+            onChange(newDate);
+        } else {
+            setSelectedDate(newDate);
+            setCurrentYear(year);
+            setCurrentMonth(month);
+        }
     };
 
     const handleTodayClick = () => {
         const today = new Date();
-        setSelectedDate(today);
-        setCurrentYear(today.getFullYear());
-        setCurrentMonth(today.getMonth());
+        if (onChange) {
+            onChange(today);
+        } else {
+            setSelectedDate(today);
+            setCurrentYear(today.getFullYear());
+            setCurrentMonth(today.getMonth());
+        }
     };
 
     const isSelectedDate = (date) => {
