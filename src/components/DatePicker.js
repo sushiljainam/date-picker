@@ -12,7 +12,7 @@ const DatePicker = ({
     const [visibleDates, setVisibleDates] = useState([]);
     const [focusedDate, setFocusedDate] = useState(null);
     const datePickerRef = useRef(null);
-    const initialRender = useRef(true);
+    const prevInitialDateRef = useRef(initialDate);
 
     const months = {
         en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -63,18 +63,21 @@ const DatePicker = ({
     };
 
     useEffect(() => {
-        if (initialRender.current) {
-            initialRender.current = false;
-            return;
+        if (initialDate && initialDate.getTime() !== prevInitialDateRef.current?.getTime()) {
+            setSelectedDate(initialDate);
+            setCurrentYear(initialDate.getFullYear());
+            setCurrentMonth(initialDate.getMonth());
+            setVisibleDates(generateDates(initialDate));
+            prevInitialDateRef.current = initialDate;
         }
+    }, [initialDate]);
 
-        if (!initialDate || initialDate.getTime() !== selectedDate.getTime()) {
+    useEffect(() => {
             setVisibleDates(generateDates(selectedDate));
-            if (onChange) {
+        if (onChange && selectedDate.getTime() !== prevInitialDateRef.current?.getTime()) {
                 onChange(selectedDate);
             }
-        }
-    }, [initialDate, selectedDate, onChange]);
+    }, [selectedDate, onChange]);
 
     const handleDateClick = (date) => {
         setSelectedDate(date);
