@@ -1,19 +1,19 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const DatePicker = ({ initialDate }) => {
+const DatePicker = ({ initialDate, onChange }) => {
     const [selectedDate, setSelectedDate] = useState(initialDate || new Date());
     const [currentYear, setCurrentYear] = useState(selectedDate.getFullYear());
     const [currentMonth, setCurrentMonth] = useState(selectedDate.getMonth());
     const [visibleDates, setVisibleDates] = useState([]);
-    const dateRowRef = useRef(null);
 
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const weekDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    const weekDaysFull = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
     const generateDates = (centerDate) => {
         const dates = [];
-    const startDate = new Date(centerDate);
-    startDate.setDate(centerDate.getDate() - centerDate.getDay() - 7);
+        const startDate = new Date(centerDate);
+        startDate.setDate(centerDate.getDate() - centerDate.getDay() - 7);
 
     for (let i = 0; i < 21; i++) {
         const date = new Date(startDate);
@@ -26,7 +26,10 @@ const DatePicker = ({ initialDate }) => {
 
     useEffect(() => {
         setVisibleDates(generateDates(selectedDate));
-    }, [selectedDate]);
+    if (onChange) {
+        onChange(selectedDate);
+    }
+}, [selectedDate, onChange]);
 
     const handleDateClick = (date) => {
         setSelectedDate(date);
@@ -60,6 +63,10 @@ const DatePicker = ({ initialDate }) => {
         return date.toDateString() === selectedDate.toDateString();
     };
 
+    const isSelectedDay = (day) => {
+        return day === selectedDate.getDay();
+    };
+
     const getVisibleMonths = () => {
         const monthIndex = currentMonth;
         return [-2, -1, 0, 1, 2].map(offset => {
@@ -70,6 +77,7 @@ const DatePicker = ({ initialDate }) => {
     };
 
     return (
+    <div>
         <div className="flex border rounded-lg overflow-hidden shadow-lg">
             {/* Year selector */}
             <div className="w-20 bg-gray-100 flex flex-col items-center justify-center">
@@ -101,31 +109,38 @@ const DatePicker = ({ initialDate }) => {
             {/* Calendar */}
             <div className="flex-1 p-2">
                 <div className="grid grid-cols-7 gap-1">
-                    {weekDays.map((day) => (
-                        <div key={day} className="text-center font-semibold text-xs p-1">
-                            {day}
+                    {weekDays.map((day, index) => (
+                        <div
+                            key={day}
+                            className={`text-center font-semibold text-xs p-1 ${isSelectedDay(index) ? 'bg-blue-100' : ''}`}
+                        >
+                            {isSelectedDay(index) ? weekDaysFull[index] : day}
                         </div>
                     ))}
                 </div>
-            <div ref={dateRowRef} className="h-[120px] overflow-hidden">
-                <div className="grid grid-cols-7 gap-1">
-                    {visibleDates.map((date, index) => (
-                        <button
-                            key={index}
-                            onClick={() => handleDateClick(date)}
-                            className={`text-center p-1 rounded transition-colors duration-300 ${isSelectedDate(date) ? 'bg-blue-500 text-white' : 'hover:bg-gray-200'
-                                } ${date.getMonth() !== currentMonth ? 'text-gray-400' : ''}`}
-                        >
-                            <div className="text-sm">{date.getDate()}</div>
-                            {(date.getDate() === 1 || date.getDay() === 0) && (
-                                <div className="text-xs text-gray-500">
-                                    {date.toLocaleDateString('en-US', { month: 'short' })}
-                                </div>
-                            )}
-                        </button>
-                    ))}
+                <div className="h-[120px] overflow-hidden">
+                    <div className="grid grid-cols-7 gap-1">
+                        {visibleDates.map((date, index) => (
+                            <button
+                                key={index}
+                                onClick={() => handleDateClick(date)}
+                                className={`text-center p-1 rounded transition-colors duration-300 ${isSelectedDate(date) ? 'bg-blue-500 text-white' : 'hover:bg-gray-200'
+                                    } ${date.getMonth() !== currentMonth ? 'text-gray-400' : ''}`}
+                            >
+                                <div className="text-sm">{date.getDate()}</div>
+                                {(date.getDate() === 1 || date.getDay() === 0) && (
+                                    <div className="text-xs text-gray-500">
+                                        {date.toLocaleDateString('en-US', { month: 'short' })}
+                                    </div>
+                                )}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </div>
+        </div>
+        <div className="mt-2 p-2 border rounded">
+            Selected Date: {selectedDate.toDateString()}
         </div>
     </div>
 );
